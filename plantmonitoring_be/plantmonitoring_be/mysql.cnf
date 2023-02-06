@@ -1,0 +1,4 @@
+[client]
+user = root
+password = example
+default-character-set = utf8
