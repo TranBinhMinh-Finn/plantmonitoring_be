@@ -23,9 +23,3 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('plantmon.urls')),
 ]
-"""
-
-urlpatterns += [
-    path('api-token-auth/', views.obtain_auth_token)
-]
-"""

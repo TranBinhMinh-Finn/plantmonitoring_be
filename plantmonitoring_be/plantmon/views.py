@@ -35,6 +35,10 @@ class DeviceCreate(generics.CreateAPIView):
     API endpoint that allows users to add their devices
     """
     serializer_class = DeviceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        return serializer.save(owner=self.request.user)
 
 
 class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
