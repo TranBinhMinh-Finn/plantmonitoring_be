@@ -5,6 +5,7 @@
 * Docker
 * Docker Compose
 
+## Starting the backend server
 * Start with Docker Compose:
 
 ```bash
@@ -20,5 +21,7 @@ poetry install
 ```
 
 * Then start the django server:
+```bash
 cd plantmonitoring_be
 python manage.py runserver
+```
