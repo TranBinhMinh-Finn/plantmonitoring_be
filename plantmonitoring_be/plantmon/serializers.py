@@ -4,9 +4,11 @@ from django.contrib.auth.hashers import make_password
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
+    devices = serializers.PrimaryKeyRelatedField(many=True, queryset=Device.objects.all())
+    
     class Meta:
         model = CustomUser
-        fields = ['user_id', 'username', 'email']
+        fields = ['user_id', 'username', 'email', 'devices']
 
 
 class DeviceSerializer(serializers.ModelSerializer):
@@ -14,7 +16,7 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        fields = ['name', 'owner']
+        fields = ['device_id', 'name', 'owner']
 
 
 class UserAuthSerializer(serializers.ModelSerializer):
