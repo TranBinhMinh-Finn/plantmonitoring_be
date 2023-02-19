@@ -21,3 +21,15 @@ services:
     image: adminer
     ports:
       - 8080:8080
+
+
+  backend:
+    container_name: backend
+    build:
+      dockerfile: ./backend.Dockerfile
+    volumes:
+      - ./:/app
+    ports:
+      - 8000:8000
+    depends_on: 
+      - db
