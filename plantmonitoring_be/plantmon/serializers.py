@@ -1,11 +1,11 @@
-from plantmon.models import CustomUser, Device
+from plantmon.models import CustomUser, Device, DeviceReadings
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
     devices = serializers.PrimaryKeyRelatedField(many=True, queryset=Device.objects.all())
-    
+
     class Meta:
         model = CustomUser
         fields = ['user_id', 'username', 'email', 'devices']
@@ -32,3 +32,9 @@ class UserAuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['user_id', 'username', 'password', 'email']
+
+
+class DeviceReadingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeviceReadings
+        fields = ['device', 'temperature', 'humidity', 'brightness', 'timestamp']

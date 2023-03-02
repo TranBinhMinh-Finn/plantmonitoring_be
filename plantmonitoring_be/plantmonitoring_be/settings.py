@@ -12,7 +12,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -149,3 +152,14 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=4),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
+
+HIVEMQ_BROKER_ADDRESS = os.getenv("BROKER_ADDRESS")
+HIVEMQ_BROKER_USERNAME = os.getenv("BROKER_USERNAME")
+HIVEMQ_BROKER_PASSWORD = os.getenv("BROKER_PASSWORD")
+HIVEMQ_BROKER_TOPIC = os.getenv("BROKER_TOPIC")
+HIVEMQ_BROKER_PORT = int(os.getenv("BROKER_PORT"))

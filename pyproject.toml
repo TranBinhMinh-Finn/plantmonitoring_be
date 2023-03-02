@@ -11,6 +11,11 @@ django = "^4.1.4"
 mysqlclient = "^2.1.1"
 djangorestframework = "^3.14.0"
 djangorestframework-simplejwt = {extras = ["crypto"], version = "^5.2.2"}
+django-cors-headers = "^3.13.0"
+celery = "^5.2.7"
+redis = "^4.5.1"
+paho-mqtt = "^1.6.1"
+python-dotenv = "^1.0.0"
 
 
 [build-system]
