@@ -12,7 +12,6 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class DeviceReadingsSerializer(serializers.ModelSerializer):
-    device = serializers.ReadOnlyField(source='device.device_id')
 
     class Meta:
         model = DeviceReadings

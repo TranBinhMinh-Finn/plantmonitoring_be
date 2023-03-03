@@ -1,6 +1,6 @@
 from paho.mqtt import client as mqtt_client
 from django.conf import settings
-from celery.signals import celeryd_after_setup
+from celery.signals import worker_ready
 from plantmon.serializers import DeviceReadingsSerializer
 from datetime import datetime
 import json
@@ -21,12 +21,12 @@ def connect_mqtt() -> mqtt_client:
     return client
 
 
-@celeryd_after_setup.connect
-def consume_device_metric(sender, instance, **kwargs):
+@worker_ready.connect
+def consume_device_metric(**kwargs):
     client = connect_mqtt()
 
     def on_message(client, userdata, msg):
-        print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic", type(msg.payload.decode()))
+        print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
         payload = json.loads(msg.payload.decode())
         payload['timestamp'] = datetime.fromtimestamp(payload['timestamp'])
         serializer = DeviceReadingsSerializer(data=payload)

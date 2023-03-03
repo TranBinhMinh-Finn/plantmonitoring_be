@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from .models import Device
 
 
 class IsOwner(permissions.BasePermission):
@@ -17,3 +18,14 @@ class IsEditingSelf(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj == request.user
+
+
+class IsDeviceOwner(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        device_id = view.kwargs.get(view.lookup_url_kwarg)
+        try:
+            device = Device.objects.get(pk=device_id)
+        except Device.DoesNotExist:
+            return False
+        return device.owner == request.user
