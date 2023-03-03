@@ -1,6 +1,6 @@
-from plantmon.models import CustomUser, Device
+from plantmon.models import CustomUser, Device, DeviceReadings
 from rest_framework import permissions
-from plantmon.serializers import UserAuthSerializer, UserDetailSerializer, DeviceSerializer
+from plantmon.serializers import UserAuthSerializer, UserDetailSerializer, DeviceSerializer, DeviceReadingsSerializer
 from rest_framework import generics
 from .permissions import IsOwner, IsEditingSelf
 
@@ -48,3 +48,18 @@ class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
+
+
+class DeviceReadingsList(generics.ListAPIView):
+    serializer_class = DeviceReadingsSerializer
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = DeviceReadings.objects.all()
+        device = self.request.query_params.get('device')
+        if device is not None:
+            queryset = queryset.filter(device=device)
+        return queryset

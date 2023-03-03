@@ -11,6 +11,14 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = ['user_id', 'username', 'email', 'devices']
 
 
+class DeviceReadingsSerializer(serializers.ModelSerializer):
+    device = serializers.ReadOnlyField(source='device.device_id')
+
+    class Meta:
+        model = DeviceReadings
+        fields = ['device', 'temperature', 'humidity', 'brightness', 'timestamp']
+
+
 class DeviceSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
 
@@ -32,9 +40,3 @@ class UserAuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['user_id', 'username', 'password', 'email']
-
-
-class DeviceReadingsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DeviceReadings
-        fields = ['device', 'temperature', 'humidity', 'brightness', 'timestamp']

@@ -36,4 +36,3 @@ def consume_device_metric(sender, instance, **kwargs):
     client.subscribe(settings.HIVEMQ_BROKER_TOPIC)
     client.on_message = on_message
     client.loop_forever()
-    
