@@ -20,3 +20,6 @@ class DeviceReadings(models.Model):
     humidity = models.FloatField()
     brightness = models.FloatField()
     timestamp = models.DateTimeField()
+
+    class Meta:
+        ordering = ['-timestamp']
