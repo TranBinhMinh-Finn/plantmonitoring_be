@@ -12,3 +12,14 @@ class Device(models.Model):
     device_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(CustomUser, related_name='devices', on_delete=models.CASCADE,)
+
+
+class DeviceReadings(models.Model):
+    device = models.ForeignKey(Device, related_name='readings',  on_delete=models.CASCADE,)
+    temperature = models.FloatField()
+    humidity = models.FloatField()
+    brightness = models.FloatField()
+    timestamp = models.DateTimeField()
+
+    class Meta:
+        ordering = ['-timestamp']

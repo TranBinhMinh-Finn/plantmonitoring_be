@@ -20,6 +20,8 @@ services:
   adminer:
     container_name: adminer
     image: adminer
+    environment:
+      - ADMINER_DEFAULT_SERVER=mysql
     ports:
       - 8080:8080
 
@@ -37,3 +39,23 @@ services:
     command: sh -c "python manage.py wait_for_db --settings config.docker &&
                     python manage.py migrate --settings config.docker && 
                     python manage.py runserver 0.0.0.0:8000 --settings config.docker"
+
+
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - '6379:6379'
+
+
+  celery_worker:
+    build: 
+      dockerfile: ./celery_worker.Dockerfile
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.docker
+    command: sh -c "celery -A plantmon worker -E"
+    volumes:
+      - ./:/app
+    depends_on:
+      - mysql
+      - redis
