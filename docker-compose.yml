@@ -59,3 +59,14 @@ services:
     depends_on:
       - mysql
       - redis
+
+  
+  consumer:
+    container_name: consumer
+    build:
+      dockerfile: ./celery_worker.Dockerfile
+    volumes:
+      - ./:/app
+    depends_on:
+      - mysql
+    command: sh -c "python manage.py consumer --settings config.docker"
