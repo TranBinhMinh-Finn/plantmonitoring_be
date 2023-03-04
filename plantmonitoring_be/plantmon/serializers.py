@@ -23,7 +23,7 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        fields = ['device_id', 'name', 'owner']
+        fields = ['device_id', 'name', 'watering_mode', 'owner']
 
 
 class UserAuthSerializer(serializers.ModelSerializer):

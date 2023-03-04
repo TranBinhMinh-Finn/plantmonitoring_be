@@ -1,9 +1,8 @@
 from paho.mqtt import client as mqtt_client
 from django.conf import settings
-from celery.signals import worker_ready
-from plantmon.serializers import DeviceReadingsSerializer
-from datetime import datetime
+from celery import shared_task
 import json
+import time
 
 
 def connect_mqtt() -> mqtt_client:
@@ -21,18 +20,20 @@ def connect_mqtt() -> mqtt_client:
     return client
 
 
-@worker_ready.connect
-def consume_device_metric(**kwargs):
+@shared_task
+def manual_watering(device_id):
     client = connect_mqtt()
-
-    def on_message(client, userdata, msg):
-        print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
-        payload = json.loads(msg.payload.decode())
-        payload['timestamp'] = datetime.fromtimestamp(payload['timestamp'])
-        serializer = DeviceReadingsSerializer(data=payload)
-        if serializer.is_valid():
-            serializer.save()
-
-    client.subscribe(settings.HIVEMQ_BROKER_TOPIC)
-    client.on_message = on_message
-    client.loop_forever()
+    client.loop_start()
+    print("wait for setup")
+    time.sleep(5)
+    payload = {
+        'device': device_id,
+        'command': 'water'
+    }
+    result = client.publish(settings.HIVEMQ_BROKER_TOPIC, json.dumps(payload))
+    status = result[0]
+    if status == 0:
+        print("Sent command")
+    else:
+        print(f"Failed to send message to topic {settings.HIVEMQ_BROKER_TOPIC}")
+    client.disconnect()

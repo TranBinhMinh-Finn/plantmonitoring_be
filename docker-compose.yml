@@ -53,9 +53,20 @@ services:
       dockerfile: ./celery_worker.Dockerfile
     environment:
       - DJANGO_SETTINGS_MODULE=config.docker
-    command: sh -c "celery -A plantmon worker -E"
+    command: sh -c "celery -A plantmon worker -E -c 2"
     volumes:
       - ./:/app
     depends_on:
       - mysql
       - redis
+
+  
+  consumer:
+    container_name: consumer
+    build:
+      dockerfile: ./celery_worker.Dockerfile
+    volumes:
+      - ./:/app
+    depends_on:
+      - mysql
+    command: sh -c "python manage.py consumer --settings config.docker"

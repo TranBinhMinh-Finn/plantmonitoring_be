@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.translation import gettext_lazy as _
 import uuid
 
 
@@ -9,9 +10,16 @@ class CustomUser(AbstractUser):
 
 
 class Device(models.Model):
+    class WateringMode(models.TextChoices):
+        MANUAL = 'MAN', _('Manual')
+        TIMED = 'TIM', _('Timed')
+        ADAPTIVE = 'ADT', _('Adaptive')
     device_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(CustomUser, related_name='devices', on_delete=models.CASCADE,)
+    watering_mode = models.CharField(max_length=3,
+                                     choices=WateringMode.choices,
+                                     default=WateringMode.MANUAL)
 
 
 class DeviceReadings(models.Model):

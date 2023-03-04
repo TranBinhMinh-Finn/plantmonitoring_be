@@ -3,6 +3,9 @@ from rest_framework import permissions
 from plantmon.serializers import UserAuthSerializer, UserDetailSerializer, DeviceSerializer, DeviceReadingsSerializer
 from rest_framework import generics
 from .permissions import IsOwner, IsEditingSelf, IsDeviceOwner
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .tasks import manual_watering
 
 
 class UserDetail(generics.RetrieveDestroyAPIView):
@@ -61,3 +64,12 @@ class DeviceReadingsList(generics.ListAPIView):
         if device is not None:
             queryset = queryset.filter(device=device)
         return queryset
+
+
+class DeviceManualWatering(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsDeviceOwner]
+    lookup_url_kwarg = "device"
+
+    def put(self, request, device, format=None):
+        manual_watering.delay(device)
+        return Response("device")
