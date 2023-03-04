@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
     def consume_device_readings(self):
         client = self.connect_mqtt()
-        client.subscribe(settings.HIVEMQ_BROKER_TOPIC)
+        client.subscribe(settings.READINGS_TOPIC)
         client.on_message = self.on_message
         client.loop_forever()
 

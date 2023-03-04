@@ -20,20 +20,35 @@ def connect_mqtt() -> mqtt_client:
     return client
 
 
-@shared_task
-def manual_watering(device_id):
+def publish_message(payload, topic):
     client = connect_mqtt()
     client.loop_start()
     print("wait for setup")
     time.sleep(5)
-    payload = {
-        'device': device_id,
-        'command': 'water'
-    }
-    result = client.publish(settings.HIVEMQ_BROKER_TOPIC, json.dumps(payload))
+    result = client.publish(topic, json.dumps(payload))
     status = result[0]
     if status == 0:
         print("Sent command")
     else:
-        print(f"Failed to send message to topic {settings.HIVEMQ_BROKER_TOPIC}")
+        print(f"Failed to send message to topic {topic}")
     client.disconnect()
+
+
+@shared_task
+def manual_watering(device_id):
+    payload = {
+        'device': device_id,
+        'command': 'water'
+    }
+    publish_message(payload, settings.COMMANDS_TOPIC)
+
+
+@shared_task
+def update_watering_mode(data):
+    payload = {
+        'device': data.get('device_id'),
+        'command': 'update',
+        'watering_mode': data.get('watering_mode'),
+        'time_interval': data.get('time_interval')
+    }
+    publish_message(payload, settings.COMMANDS_TOPIC)

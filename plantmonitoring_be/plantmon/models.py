@@ -20,6 +20,7 @@ class Device(models.Model):
     watering_mode = models.CharField(max_length=3,
                                      choices=WateringMode.choices,
                                      default=WateringMode.MANUAL)
+    time_interval = models.IntegerField(default=5)
 
 
 class DeviceReadings(models.Model):

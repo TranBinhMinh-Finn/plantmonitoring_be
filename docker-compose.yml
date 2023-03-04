@@ -53,7 +53,7 @@ services:
       dockerfile: ./celery_worker.Dockerfile
     environment:
       - DJANGO_SETTINGS_MODULE=config.docker
-    command: sh -c "celery -A plantmon worker -E -c 2"
+    command: sh -c "celery -A plantmon worker -E"
     volumes:
       - ./:/app
     depends_on:
