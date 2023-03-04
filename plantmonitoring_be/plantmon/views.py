@@ -87,4 +87,4 @@ class DeviceManualWatering(APIView):
 
     def put(self, request, device, format=None):
         manual_watering.delay(device)
-        return Response("device")
+        return Response("Command Received")
