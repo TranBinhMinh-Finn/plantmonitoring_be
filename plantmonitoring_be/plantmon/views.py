@@ -17,6 +17,15 @@ class UserDetail(generics.RetrieveDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated, IsEditingSelf]
 
 
+class UserSelf(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserDetailSerializer
+    permission_classes = [permissions.IsAuthenticated, IsEditingSelf]
+
+    def get_object(self):
+        return self.request.user
+
+
 class UserUpdate(generics.UpdateAPIView):
     """
     API endpoint that allows users to update their info
