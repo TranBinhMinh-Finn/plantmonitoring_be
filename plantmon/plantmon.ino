@@ -7,6 +7,7 @@
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <WiFiManager.h>
+#include "math.h"
 
 /// ports config
 #define ONE_WIRE_BUS D12
@@ -26,7 +27,7 @@ const char* mqtt_username = "plantmon";
 const char* mqtt_password = "RZF3SfTcf8Wg9s";
 
 // MQTT constants & variables
-const char* deviceId = "3a4d7cdf-4b13-4616-9213-30e02b028646";
+const char* deviceId = "ffc5007b-d629-4c0f-9711-dc9aff3630c8";
 WiFiClientSecure wifiClient;
 PubSubClient mqttClient(wifiClient);
 #define MSG_BUFFER_SIZE	(50)
@@ -42,7 +43,8 @@ void setup_wifi_manager()
   bool res;
   // res = wm.autoConnect(); // auto generated AP name from chipid
   // res = wm.autoConnect("AutoConnectAP"); // anonymous ap
-  res = wm.autoConnect("AutoConnectAP","password"); // password protected ap
+  // wm.setConnectTimeout(90000);
+  res = wm.autoConnect("Plantmon","password"); // password protected ap
 
   if(!res) {
       Serial.println("Failed to connect");
@@ -52,6 +54,7 @@ void setup_wifi_manager()
     //if you get here you have connected to the WiFi    
     Serial.println("connected...yeey :)");
   }
+
 }
 
 
@@ -148,7 +151,7 @@ void reconnect() {
 }
 
 // Configurations to get time from ntp server
-const char* ntpServer = "pool.ntp.org";
+const char* ntpServer = "asia.pool.ntp.org";
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
@@ -157,18 +160,24 @@ void setup() {
   setup_ports();
   sensors.begin();
 
+  delay(200);
   setup_wifi_manager();
 
   wifiClient.setInsecure();
+
+  delay(200);
+
   mqttClient.setServer(mqtt_server, 8883);
   mqttClient.setCallback(callback);
+
+  delay(200);
 
   timeClient.begin();
   timeClient.setTimeOffset(0);
 }
 
 
-void publishReadings(float temperature, float moisture, float brightness, int epochTime)
+void publishReadings(float temperature, float moisture, float brightness, long epochTime)
 {
   char buffer[1024];
   DynamicJsonDocument doc(1024);
@@ -187,6 +196,21 @@ void publishReadings(float temperature, float moisture, float brightness, int ep
 const long MSG_INTERVAL = 5000;
 long lastMsg = 0;
 long lastWatered = 0;
+
+
+const int LUX_CALC_SCALAR = 101.905;
+const float LUX_CALC_EXPONENT = -0.9;
+
+
+float luxConversion(int reading)
+{
+  // Serial.println(reading);
+  float VoutLDR = float(reading) * 5 / float(1023);// Conversion analog to voltage
+  float RLDR = (10000.0 * 5) / (5 - VoutLDR) - 10000.0; // Conversion voltage to resistance
+  // Serial.println(RLDR);
+  float lux = pow(10, -2 * (log10(RLDR/1000) - 1.905));
+  return lux;
+}
 
 void loop() {
   unsigned long now = millis();
@@ -209,7 +233,8 @@ void loop() {
 
   // conversions
   float moisture = (1024 - sensorValue1) * 1.0 / (1024 - 500) * 100.0; 
-  float brightness = (1024 - sensorValue0) * 1.0 / (1024) * 100.0; 
+
+  float brightness = luxConversion(sensorValue0);// Conversion resitance to lumen  //(1024 - sensorValue0) * 1.0 / (1024) * 100.0; 
   
   // watering mode
   if(watering_mode == 1)
@@ -230,7 +255,7 @@ void loop() {
   }
   mqttClient.loop();
 
-  time_t epochTime = timeClient.getEpochTime();
+  
 
   // debugging
   Serial.print("moisture:");
@@ -248,11 +273,17 @@ void loop() {
 
   Serial.println();
 
-  Serial.print("Epoch Time: ");
-  Serial.println(epochTime);
-
   if(now - lastMsg > MSG_INTERVAL || now < lastMsg)
   {
+    timeClient.update();
+    long epochTime = timeClient.getEpochTime();
+
+    Serial.print(" Epoch Time: ");
+    Serial.println(epochTime);
+
+    if (!mqttClient.connected()) {
+      reconnect();
+    }
     publishReadings(temp, moisture, brightness, epochTime);
     lastMsg = now;
   }
